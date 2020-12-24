@@ -72,5 +72,5 @@ if __name__ == "__main__":
     parsed_datetimes = parse_results(api_response)
     #
     # printing some things
-    print("Sunrise is at " + parsed_datetimes["sunrise"].hour + parsed_datetimes["sunrise"].minute + " today.")
-    print("Sunset is at " + parsed_datetimes["sunset"].hour + parsed_datetimes["sunset"].minute + " today.")
+    print("Sunrise is at " + str(parsed_datetimes["sunrise"].hour) + str(parsed_datetimes["sunrise"].minute) + " today.")
+    print("Sunset is at " + str(parsed_datetimes["sunset"].hour) + str(parsed_datetimes["sunset"].minute) + " today.")
