@@ -60,9 +60,9 @@ def get_sunrise_sunset_api():
 def parse_results(api_response):
     parsed_datetimes = dict()
     parsed_datetimes["sunrise"] = datetime.strptime(json.loads(api_response.text)["results"]["sunrise"],"%Y-%m-%dT%H:%M:%S%z")
-    write_to_debug_file("Sunrise date and time parsed to " + parsed_datetimes["sunrise"])
+    write_to_debug_file("Sunrise date and time parsed to " + str(parsed_datetimes["sunrise"]))
     parsed_datetimes["sunset"] = datetime.strptime(json.loads(api_response.text)["results"]["sunset"],"%Y-%m-%dT%H:%M:%S%z")
-    write_to_debug_file("Sunset date and time parsed to " + parsed_datetimes["sunset"])
+    write_to_debug_file("Sunset date and time parsed to " + str(parsed_datetimes["sunset"]))
     return parsed_datetimes
 #
 # main program
