@@ -1,5 +1,8 @@
 # Manually added to Python template
 environment_settings.py
+pylight_db.dict
+log/
+debug/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
