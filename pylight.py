@@ -40,18 +40,18 @@ def write_to_log_file(loginput,path_logfile=os.getcwd() + log_settings.get("path
 # sunrise-sunset function
 def get_sunrise_sunset_api():
     url = "https://api.sunrise-sunset.org/json"
-        data = dict()
-        data["lat"] = location.get("lat")
-        data["lng"] = location.get("lng")
-        data["date"] = "today"
-        write_to_debug_file("Data to use in API call: " + str(data))
-        write_to_debug_file("Starting API call to " + url)
-        resp = requests.get(url,data=data)
-        if resp.ok == True:
-           print(resp.text)
-        else:
-           write_to_log_file("ERROR: API call to " + url + "was not successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
-           sys.exit()
+    data = dict()
+    data["lat"] = location.get("lat")
+    data["lng"] = location.get("lng")
+    data["date"] = "today"
+    write_to_debug_file("Data to use in API call: " + str(data))
+    write_to_debug_file("Starting API call to " + url)
+    resp = requests.get(url,data=data)
+    if resp.ok == True:
+       print(resp.text)
+    else:
+       write_to_log_file("ERROR: API call to " + url + "was not successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
+       sys.exit()
 #
 # main program
 if __name__ == "__main__":
