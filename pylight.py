@@ -24,7 +24,7 @@ def write_to_debug_file(message,debug=debug_settings.get("debug"),path_debugfile
         debugfile.write(logtime + "; app: " + app + ", Message: " + message + '\n')
         debugfile.close()
         # un-comment line below to print debug-logs in CLI
-        #print(logtime + "; apiflex-app: " + apiflex_app + ", Message: " + message)
+        #print(logtime + "; app: " + app + ", Message: " + message)
 #
 # log function
 def write_to_log_file(loginput,path_logfile=os.getcwd() + log_settings.get("path_logfile")):
@@ -43,18 +43,36 @@ def get_sunrise_sunset_api():
     data = dict()
     data["lat"] = location.get("lat")
     data["lng"] = location.get("lng")
-    data["date"] = "today"
+    data["formatted"] = 0
     write_to_debug_file("Data to use in API call: " + str(data))
     write_to_debug_file("Starting API call to " + url)
-    resp = requests.get(url,data=data)
+    resp = requests.get(url,data)
     if resp.ok == True:
-       print(resp.text)
+        write_to_log_file("OK: API call to " + url + " was successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
+        write_to_debug_file("OK: API call to " + url + " was successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
+        return resp
     else:
-       write_to_log_file("ERROR: API call to " + url + "was not successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
-       sys.exit()
+        write_to_log_file("ERROR: API call to " + url + " was not successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
+        write_to_debug_file("ERROR: API call to " + url + " was not successful. HTTP Response code: " + str(resp.status_code) + ": " + resp.reason)
+        sys.exit()
+#
+# parsing results function
+def parse_results(api_response):
+    parsed_datetimes = dict()
+    parsed_datetimes["sunrise"] = datetime.strptime(json.loads(api_response.text)["results"]["sunrise"],"%Y-%m-%dT%H:%M:%S%z")
+    write_to_debug_file("Sunrise date and time parsed to " + str(parsed_datetimes["sunrise"]))
+    parsed_datetimes["sunset"] = datetime.strptime(json.loads(api_response.text)["results"]["sunset"],"%Y-%m-%dT%H:%M:%S%z")
+    write_to_debug_file("Sunset date and time parsed to " + str(parsed_datetimes["sunset"]))
+    return parsed_datetimes
 #
 # main program
 if __name__ == "__main__":
     # get sunrise and sunset times from https://sunrise-sunset.org/api
-    get_sunrise_sunset_api()
-
+    api_response = get_sunrise_sunset_api()
+    parsed_datetimes = parse_results(api_response)
+    #
+    # printing some things
+    print("Sunrise is at " + str(parsed_datetimes["sunrise"].hour) + str(parsed_datetimes["sunrise"].minute) + " today.")
+    print("Sunset is at " + str(parsed_datetimes["sunset"].hour) + str(parsed_datetimes["sunset"].minute) + " today.")
+#
+# end of script
