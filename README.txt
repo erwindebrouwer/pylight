@@ -7,7 +7,7 @@ creates Linux cronjobs to turn a certain list
 of Philips Hue lights ON and OFF.
 
 > Author(s) : Erwin de Brouwer
-> Version : 1.0
+> Version : 1.1
 
 CREDITS
 ----------------------------------------------
@@ -28,9 +28,10 @@ SETUP
 2. Configure and rename the sample 
    environment_settings.sample.py file to
    environment_settings.py
-3. CRONJOB schedule the running of the script
-   pylight.py to run in the nighttime.
-
+3. Create directories called "log" and "debug"
+4. CRONJOB schedule the running of the script
+   pylight.py to run just after midnight.
+s
 COMPONENTS
 ---------------------------------------------- 
 > pylight.py
@@ -41,9 +42,8 @@ COMPONENTS
   installation.
 > logfile
   place for the applications to write their
-  log data to. This file can then for example
-  be imported into Splunk. Path and filename
-  can be set in environment_settings.py.
+  log data to. Path and filename can be set
+  in environment_settings.py.
 > debugfile
   place for the applications to write their
   debug logging to. Path and filename can be

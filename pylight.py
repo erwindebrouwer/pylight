@@ -7,6 +7,7 @@ import requests
 import json
 import sys
 import os
+import re
 from datetime import datetime # - for logging timestamps
 #
 # Disable requests-module insecure request warning!
@@ -73,15 +74,10 @@ def parse_results(api_response):
 # scheduling commands in HUE controller to switch_on and switch_off light(s)
 def schedule_commands(parsed_datetimes):
     # set datetime suitable for use
-    print("suitable times?")
-    print(str(parsed_datetimes["sunrise"]))
     sunrise_time = str(parsed_datetimes["sunrise"])
     sunrise_time = sunrise_time[0:-6].replace(" ","T")
-    print(sunrise_time)
-    print(str(parsed_datetimes["sunset"]))
     sunset_time = str(parsed_datetimes["sunset"])
     sunset_time = sunset_time[0:-6].replace(" ","T")
-    print(sunset_time)
     #
     # GET hue options from environment_settings
     hue_bridge_ip = str(hue.get("ip"))
@@ -95,35 +91,56 @@ def schedule_commands(parsed_datetimes):
     url_get_lights = "https://"+hue_bridge_ip+":"+hue_bridge_port+"/api/"+hue_bridge_key+"/lights"
     get_lights_response = requests.get(url_get_lights, verify=False)
     get_lights_response_dict = json.loads(get_lights_response.text)
-    write_to_debug_file("Finished downloading all device ID's and names from HUE controller with a total amount of " + str(len(get_lights_response_dict)))
+    if get_lights_response.ok == True:
+        write_to_log_file("OK: API call was successful. HTTP Response code: " + str(get_lights_response.status_code) + ": " + get_lights_response.reason)
+        write_to_debug_file("OK: API call was successful. HTTP Response code: " + str(get_lights_response.status_code) + ": " + get_lights_response.reason)
+        write_to_debug_file("Finished downloading all device ID's and names from HUE controller with a total amount of " + str(len(get_lights_response_dict)))
+    else:
+        write_to_log_file("ERROR: API call was not successful. HTTP Response code: " + str(url_get_lights.status_code) + ": " + url_get_lights.reason)
+        write_to_debug_file("ERROR: API call was not successful. HTTP Response code: " + str(url_get_lights.status_code) + ": " + url_get_lights.reason)
+        sys.exit()
     # resolve light names to ID's
     hue_bridge_lights_id = list()
     for name in hue_bridge_lights:
         for item in get_lights_response_dict:
             if name in get_lights_response_dict[item]["name"]:
                 hue_bridge_lights_id.append(item)
+    write_to_debug_file("Light names to ID resolving done. ID's in list: " + str(hue_bridge_lights_id))
     # schedule commands in Hue controller
     for light_id in hue_bridge_lights_id:
         url_post_command = "https://"+hue_bridge_ip+":"+hue_bridge_port+"/api/"+hue_bridge_key+"/schedules"
         # sunrise - switch OFF
         body_text_sunrise = '{"command":{"address":"/api/'+hue_bridge_key+'/lights/'+light_id+'/state","body":{"on":false,"bri":'+hue_bridge_brightness+'},"method":"PUT"},"time":"'+sunrise_time+'"}'
         response_sunrise = requests.post(url_post_command,data=body_text_sunrise,verify=False)
-        print(response_sunrise.text)
+        write_to_debug_file("Result of sunrise schedule command: " + response_sunrise.text)
+        if response_sunrise.ok == True:
+            write_to_log_file("OK: API call to was successful. HTTP Response code: " + str(response_sunrise.status_code) + ": " + response_sunrise.reason)
+            write_to_debug_file("OK: API call to was successful. HTTP Response code: " + str(response_sunrise.status_code) + ": " + response_sunrise.reason)
+        else:
+            write_to_log_file("ERROR: API call to was not successful. HTTP Response code: " + str(response_sunrise.status_code) + ": " + response_sunrise.reason)
+            write_to_debug_file("ERROR: API call to was not successful. HTTP Response code: " + str(response_sunrise.status_code) + ": " + response_sunrise.reason)
         # sunset - switch ON
         body_text_sunset = '{"command":{"address":"/api/'+hue_bridge_key+'/lights/'+light_id+'/state","body":{"on":true,"bri":'+hue_bridge_brightness+'},"method":"PUT"},"time":"'+sunset_time+'"}'
         response_sunset = requests.post(url_post_command,data=body_text_sunset,verify=False)
-        print(response_sunset.text)
-#
+        write_to_debug_file("Result of sunset schedule command: " + response_sunset.text)
+        if response_sunset.ok == True:
+            write_to_log_file("OK: API call to was successful. HTTP Response code: " + str(response_sunset.status_code) + ": " + response_sunset.reason)
+            write_to_debug_file("OK: API call to was successful. HTTP Response code: " + str(response_sunset.status_code) + ": " + response_sunset.reason)
+        else:
+            write_to_log_file("ERROR: API call to was not successful. HTTP Response code: " + str(response_sunset.status_code) + ": " + response_sunset.reason)
+            write_to_debug_file("ERROR: API call to was not successful. HTTP Response code: " + str(response_sunset.status_code) + ": " + response_sunset.reason)
 #
 # main program
 if __name__ == "__main__":
     # get sunrise and sunset times from https://sunrise-sunset.org/api
     api_response = get_sunrise_sunset_api()
+    # parse the API output
     parsed_datetimes = parse_results(api_response)
+    # schedule commands at Hue bridge/controller
     schedule_commands(parsed_datetimes)
     #
     # printing some things
-    print("Sunrise is at " + str(parsed_datetimes["sunrise"].hour) + ":" + str(parsed_datetimes["sunrise"].minute) + " today.")
-    print("Sunset is at " + str(parsed_datetimes["sunset"].hour) + ":" + str(parsed_datetimes["sunset"].minute) + " today.")
+    #print("Sunrise is at " + str(parsed_datetimes["sunrise"].hour) + ":" + str(parsed_datetimes["sunrise"].minute) + " today.")
+    #print("Sunset is at " + str(parsed_datetimes["sunset"].hour) + ":" + str(parsed_datetimes["sunset"].minute) + " today.")
 #
 # end of script
