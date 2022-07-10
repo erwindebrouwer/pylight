@@ -26,5 +26,7 @@ location = {
 hue = {
 	"ip": "10.0.0.1",
 	"port": 443,
-	"api_key": "place-key-here",
+	"key": "place-key-here",
+    "lights": ["lamp-1"]
+    "brightness": 20,
 }

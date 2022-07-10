@@ -18,7 +18,8 @@ sunrise - sunset) times of any given location.
 VERSION INFO AND CHANGE LOG
 ----------------------------------------------
 version | changes
-1.0     | initial script
+1.0     | initial script to query times
+1.1     | scheduling commands in Hue
 
 SETUP
 ----------------------------------------------
